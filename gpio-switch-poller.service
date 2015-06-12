@@ -1,0 +1,13 @@
+[Unit]
+Description = Starts an instance of gpio-switch-poller
+After = remote-fs.target
+
+[Service]
+User = root
+Group = root
+Type = simple
+ExecStart = /usr/bin/gpio-switch-poller -i1000 -a38 -b40 -l307655 -u3859772 -h/home/kassak/pi_stuff/handler.sh -n2
+Restart = on-failure
+
+[Install]
+WantedBy = multi-user.target

@@ -1,0 +1,13 @@
+[Unit]
+Description = Starts an instance of Emulatorstation
+After = remote-fs.target
+
+[Service]
+User = kassak
+Group = kassak
+Type = simple
+ExecStart = /usr/bin/emulatorstation
+Restart = on-failure
+
+[Install]
+WantedBy = multi-user.target

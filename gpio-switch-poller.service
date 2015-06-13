@@ -6,7 +6,7 @@ After = remote-fs.target
 User = root
 Group = root
 Type = simple
-ExecStart = /usr/bin/gpio-switch-poller -i1000 -a38 -b40 -l307655 -u3859772 -h/home/kassak/pi_stuff/handler.sh -n2
+ExecStart = /usr/bin/gpio-switch-poller-runner /etc/gpio-switch-poller.conf
 Restart = on-failure
 
 [Install]

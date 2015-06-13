@@ -154,7 +154,7 @@ void calibrate()
   }
 }
 
-void handle_state(int cur)
+void handle_state(int cur, int no_fork)
 {
   if (last_state == cur) return;
   static int MAX = 10;
@@ -162,7 +162,7 @@ void handle_state(int cur)
   char cur_str[MAX];
   snprintf(prev_str, MAX, "%i", last_state);
   snprintf(cur_str, MAX, "%i", cur);
-  if (!fork())
+  if (no_fork || !fork())
   {
     execl("/bin/sh", "/bin/sh", handler, prev_str, cur_str, NULL);
     exit(0);//just to be sure
@@ -172,19 +172,21 @@ void handle_state(int cur)
 
 void watch_finished()
 {
-  handle_state(-1);
+  handle_state(-1, 1);
+  exit(0);
 }
 
 void watch()
 {
-  on_exit(&watch_finished, NULL);
+  signal(SIGTERM, &watch_finished);
+//  on_exit(&watch_finished, NULL);
   while (1)
   {
     long val = measure(a_pin, b_pin);
     if (val == -1) continue;
     int state = calc_state(val);
     //    printf("state: %i, val: %li\n", state, val);
-    handle_state(state);
+    handle_state(state, 0);
     delay(interval);
   }
 }

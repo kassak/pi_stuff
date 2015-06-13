@@ -1,0 +1,3 @@
+#!/bin/sh
+source $1
+/usr/bin/gpio-switch-poller -i "$INTERVAL" -a "$A_PIN" -b "$B_PIN" -l "$LOWER_NANO" -u "$UPPER_NANO" -h "$HANDLER_SCRIPT" -n "$NUMBER_OF_STATES"

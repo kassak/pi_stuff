@@ -178,14 +178,15 @@ void watch_finished()
 
 void watch()
 {
-  signal(SIGTERM, &watch_finished);
+  signal(SIGCHLD, SIG_IGN);
+//  signal(SIGTERM, &watch_finished);
 //  on_exit(&watch_finished, NULL);
   while (1)
   {
     long val = measure(a_pin, b_pin);
     if (val == -1) continue;
     int state = calc_state(val);
-    //    printf("state: %i, val: %li\n", state, val);
+        printf("state: %i, val: %li\n", state, val);
     handle_state(state, 0);
     delay(interval);
   }
@@ -243,9 +244,13 @@ int main(int argc, char **argv)
   a_pin = convert_pin(a_pin);
   b_pin = convert_pin(b_pin);
   
+  printf("lower: %li, upper: %li, nstates: %i\n", lower, upper, nstates);
+
   if (!bcm2835_init()) report_error("Initialization failed\n");
 
-  on_exit(&cleanup, NULL);
+  //on_exit(&cleanup, NULL);
+  discharge(a_pin, b_pin);
+  delay(interval);
   if (cal)
     calibrate(a_pin, b_pin, interval);
   else

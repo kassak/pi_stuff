@@ -1,6 +1,7 @@
 #!/bin/sh
 
 #echo "$@"
+#exit 1
 
 UNITS=(kodi emulationstation none)
 
@@ -15,6 +16,4 @@ function process_action {
 
 process_action stop  $1
 process_action start $2
-#[[ "$1" -ne "-1" ]] && echo ${UNITS[$1]} && systemctl stop ${UNITS[$1]}
-#[[ "$2" -ne "-1" ]] && echo ${UNITS[$2]} && systemctl start ${UNITS[$2]}
 

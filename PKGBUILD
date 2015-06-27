@@ -5,6 +5,7 @@ pkgdesc="pkg-config files"
 arch=('armv7h')
 depends=(libbcm2835)
 
+backup=(etc/gpio-switch-poller.conf)
 source=(gpio_test.c gpio-switch-poller.service gpio-switch-poller-runner gpio-switch-poller.conf)
 md5sums=(SKIP SKIP SKIP SKIP)
 

@@ -12,24 +12,17 @@ bool debug = 0;
 
 static int remeasure_init(void)
 {
+  int res;
   KLOG(KERN_INFO, "inited\n");
   DKLOG("on A=%i, B=%i, timeout=%i, relaxation=%i\n",
       gpio_a_pin, gpio_b_pin, measure_timeout, min_relaxation_ms);
-  if (!is_valid_gpio_pin(gpio_a_pin))
-  {
-    KLOG(KERN_ERR, "A pin is invalid\n");
-    return -EINVAL;
-  }
-  if (!is_valid_gpio_pin(gpio_b_pin))
-  {
-      KLOG(KERN_ERR, "B pin is invalid\n");
-      return -EINVAL;
-  }
+  if ((res = init_gpio())) return res;
   return 0;
 }
 
 static void remeasure_deinit(void)
 {
+  deinit_gpio();
   KLOG(KERN_INFO, "deinited\n");
 }
 

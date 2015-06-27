@@ -1,4 +1,4 @@
-#define MODULE_NAME "Remeasure"
+#define MY_MODULE_NAME "Remeasure"
 MODULE_LICENSE("Dual MIT/GPL");
 MODULE_DESCRIPTION("Resistance measure driver for Raspberry Pi GPIO.");
 MODULE_AUTHOR("Alexander Kass <kass.soft@gmail.com>");

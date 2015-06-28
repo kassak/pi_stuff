@@ -9,7 +9,7 @@ char gpiochip_name[30] = "pinctrl-bcm2835";
 
 struct gpio_chip *gpiochip;
 struct irq_data *irqdata;
-static spinlock_t lock;
+DEFINE_SPINLOCK(irqlock);
 
 #include "remeasure_specification.h"
 #include "util.h"
@@ -36,9 +36,10 @@ static inline int init_gpio(void)
   if (!gpiochip) return -ENODEV;
   if ((ret = claim_pin(gpiochip, gpio_a_pin))) goto error0;
   if ((ret = claim_pin(gpiochip, gpio_b_pin))) goto error1;
-  if ((ret = install_irq_handler(gpiochip, gpio_b_pin, irq_handler
+  if ((ret = install_irq_handler(gpiochip, gpio_b_pin, (irq_handler_t)irq_handler
                                  , MY_MODULE_NAME " charge waiter", &irqdata)))
     goto error2;
+  set_irq_type(irqdata, IRQ_TYPE_EDGE_RISING, &irqlock);
   return 0;
 error2:
   free_pin(gpiochip, gpio_b_pin);
@@ -50,6 +51,8 @@ error0:
 
 static inline void deinit_gpio(void)
 {
+    // mask_irq(irqdata, &irqlock);
+  set_irq_type(irqdata, 0, &irqlock);
   uninstall_irq_handler(gpiochip, gpio_b_pin);
   free_pin(gpiochip, gpio_a_pin);
   free_pin(gpiochip, gpio_b_pin);

@@ -22,6 +22,8 @@ __attribute__((section("__versions"))) = {
 	{ 0x60ee9172, __VMLINUX_SYMBOL_STR(param_ops_bool) },
 	{ 0xb71871f6, __VMLINUX_SYMBOL_STR(param_ops_string) },
 	{ 0xf20dabd8, __VMLINUX_SYMBOL_STR(free_irq) },
+	{ 0x51d559d1, __VMLINUX_SYMBOL_STR(_raw_spin_unlock_irqrestore) },
+	{ 0x598542b2, __VMLINUX_SYMBOL_STR(_raw_spin_lock_irqsave) },
 	{ 0xd6b8e852, __VMLINUX_SYMBOL_STR(request_threaded_irq) },
 	{ 0xd591ef93, __VMLINUX_SYMBOL_STR(irq_get_irq_data) },
 	{ 0x123c76e0, __VMLINUX_SYMBOL_STR(gpiochip_find) },
@@ -37,4 +39,4 @@ __attribute__((section(".modinfo"))) =
 "depends=";
 
 
-MODULE_INFO(srcversion, "B7D618A30AECC2C1A2899C7");
+MODULE_INFO(srcversion, "26FA85F08796D2D6B8B9904");

@@ -94,53 +94,29 @@ static void uninstall_irq_handler(struct gpio_chip * chip, int pin)
   DKLOG("freed IRQ %d\n", irq);
 }
 
-static inline void set_irq_type(struct irq_data * data, int type)
+static inline void set_irq_type(struct irq_data * data, int type, spinlock_t * lock)
 {
+  unsigned long flags;
+  DKLOG("set_irq_type %i -> %i\n", data->irq, type);
+  spin_lock_irqsave(lock, flags);
   data->chip->irq_set_type(data, type);
+  spin_unlock_irqrestore(lock, flags);
 }
 
-static inline void unmask_irq(struct irq_data * data)
+static inline void unmask_irq(struct irq_data * data, spinlock_t * lock)
 {
+  unsigned long flags;
+  DKLOG("unmask_irq %i\n", data->irq);
+  spin_lock_irqsave(lock, flags);
   data->chip->irq_unmask(data);
+  spin_unlock_irqrestore(lock, flags);
 }
-/*
-static int install_irq_handler(int pin, int irq_type, irq_handler_t handler, const char * name)
+
+static inline void mask_irq(struct irq_data * data, spinlock_t * lock)
 {
   unsigned long flags;
-  int irq = gpiochip->to_irq(gpiochip, pin);
-  int result = request_irq(irq, handler, 0, name, (void*) 0);
-
-  switch (result)
-  {
-  case -EBUSY:
-    KLOG(KERN_ERR, "IRQ %d is busy\n", irq);
-    return -EBUSY;
-  case -EINVAL:
-    KLOG(KERN_ERR, "bad irq number or handler\n");
-    return -EINVAL;
-  default:
-    DKLOG("interrupt %d obtained\n", irq);
-    break;
-  }
-
-  spin_lock_irqsave(&lock, flags);
-  irqchip->irq_set_type(irqdata, IRQ_TYPE_EDGE_RISING | IRQ_TYPE_EDGE_FALLING);
-  irqchip->irq_unmask(irqdata);
-  spin_unlock_irqrestore(&lock, flags);
-  return 0;
+  DKLOG("mask_irq %i\n", data->irq);
+  spin_lock_irqsave(lock, flags);
+  data->chip->irq_mask(data);
+  spin_unlock_irqrestore(lock, flags);
 }
-
-static void uninstall_irq_handler(int pin)
-{
-  unsigned long flags;
-  int irq;
-  spin_lock_irqsave(&lock, flags);
-  irqchip->irq_set_type(irqdata, 0);
-  irqchip->irq_mask(irqdata);
-  spin_unlock_irqrestore(&lock, flags);
-
-  irq = gpiochip->to_irq(gpiochip, pin);
-  free_irq(irq, (void *) 0);
-  DKLOG("freed IRQ %d\n", irq);
-}
-*/

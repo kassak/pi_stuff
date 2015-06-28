@@ -14,6 +14,7 @@ DEFINE_SPINLOCK(irqlock);
 #include "remeasure_specification.h"
 #include "util.h"
 #include "gpio_stuff.h"
+#include "netlink_stuff.h"
 
 static irqreturn_t irq_handler(int i, void *blah, struct pt_regs *regs)
 {
@@ -65,13 +66,19 @@ static int remeasure_init(void)
   KLOG(KERN_INFO, "inited\n");
   DKLOG("on A=%i, B=%i, timeout=%i, relaxation=%i\n",
       gpio_a_pin, gpio_b_pin, measure_timeout, min_relaxation_ms);
-  if ((res = init_gpio())) return res;
+  if ((res = init_gpio())) goto error0;
+  if ((res = init_netlink())) goto error1;
   return 0;
+error1:
+  deinit_gpio();
+error0:
+  return res;
 }
 
 static void remeasure_deinit(void)
 {
   deinit_gpio();
+  deinit_netlink();
   KLOG(KERN_INFO, "deinited\n");
 }
 

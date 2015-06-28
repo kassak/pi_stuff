@@ -3,42 +3,24 @@
 #include <linux/interrupt.h>
 #include <linux/spinlock.h>
 
-struct gpio_chip *gpiochip;
-struct irq_chip *irqchip;
-struct irq_data *irqdata;
-static spinlock_t lock;
-
-static inline void set_level(int pin, int value)
+static inline void set_level(struct gpio_chip * chip, int pin, int value)
 {
-  gpiochip->set(gpiochip, pin, value);
+  chip->set(chip, pin, value);
 }
 
-static inline int get_level(int pin)
+static inline int get_level(struct gpio_chip * chip, int pin)
 {
-  return gpiochip->get(gpiochip, pin);
+  return chip->get(chip, pin);
 }
 
-static inline void set_output(int pin, int val)
+static inline void set_output(struct gpio_chip * chip, int pin, int val)
 {
-  gpiochip->direction_output(gpiochip, pin, val);
+  chip->direction_output(chip, pin, val);
 }
 
-static inline void set_input(int pin)
+static inline void set_input(struct gpio_chip * chip, int pin)
 {
-  gpiochip->direction_input(gpiochip, pin);
-}
-
-static irqreturn_t irq_handler(int i, void *blah, struct pt_regs *regs)
-{
-
-  /* use the GPIO signal level */
-  /*int signal = */gpiochip->get(gpiochip, gpio_a_pin);
-
-  /* unmask the irq */
-  irqchip->irq_unmask(irqdata);
-
-
-  return IRQ_HANDLED;
+  chip->direction_input(chip, pin);
 }
 
 static int is_right_chip(struct gpio_chip *chip, void *data)
@@ -48,51 +30,80 @@ static int is_right_chip(struct gpio_chip *chip, void *data)
   return res;
 }
 
-static inline int claim_pin(int pin, const char * name)
+static inline int claim_pin(struct gpio_chip * chip, int pin)
 {
-  if (gpio_request(pin, name))
+  if (pin < 0 || pin >= chip->ngpio)
+  {
+    KLOG(KERN_ERR, "GPIO pin %i out of possible range 0..%i\n", pin, gpiochip->ngpio);
+    return -EINVAL;
+  }
+  if (chip->request(chip, pin))
   {
     KLOG(KERN_ERR, "failed to claim GPIO pin %i", pin);
     return -ENODEV;
   }
+  DKLOG("successfully claimed GPIO pin %i (%s)", pin
+        , chip->names && chip->names[pin] ? chip->names[pin] : "noname");
   return 0;
 }
 
-static inline int init_gpio(void)
+static inline void free_pin(struct gpio_chip * chip, int pin)
 {
-  int ret, irq;
-  gpiochip = gpiochip_find("bcm2708_gpio", is_right_chip);
-  if (!gpiochip) return -ENODEV;
+  chip->free(chip, pin);
+}
 
-  if ((ret = claim_pin(gpio_a_pin, MY_MODULE_NAME "A"))) goto error0;
-  if ((ret = claim_pin(gpio_b_pin, MY_MODULE_NAME "B"))) goto error1;
+static inline struct gpio_chip* find_gpio_chip(const char * name)
+{
+  return gpiochip_find((void*)name, is_right_chip);
+}
 
-  irq = gpiochip->to_irq(gpiochip, gpio_b_pin);
+static inline int install_irq_handler(struct gpio_chip * chip, int pin, irq_handler_t handler
+                                      , const char * name, struct irq_data **res)
+{
+  int result;
+  int irq = chip->to_irq(chip, pin);
+  struct irq_data *data = irq_get_irq_data(irq);
   DKLOG("irq %d\n", irq);
-  irqdata = irq_get_irq_data(irq);
 
-  if (!irqdata || !irqdata->chip)
+  if (!data || !data->chip)
   {
     KLOG(KERN_ERR, "no irq chip found");
-    ret = -ENODEV;
-    goto error2;
+    return -ENODEV;
   }
-  irqchip = irqdata->chip;
-  return 0;
-error2:
-  gpio_free(gpio_b_pin);
-error1:
-  gpio_free(gpio_a_pin);
-error0:
-  return ret;
+  result = request_irq(irq, handler, 0, name, (void*) 0);
+  switch (result)
+  {
+  case -EBUSY:
+    KLOG(KERN_ERR, "IRQ %d is busy\n", irq);
+    return -EBUSY;
+  case -EINVAL:
+    KLOG(KERN_ERR, "bad irq number or handler\n");
+    return -EINVAL;
+  default:
+    DKLOG("interrupt %d obtained\n", irq);
+    break;
+  }
+  if (res != NULL) *res = data;
+  return result;
 }
 
-static inline void deinit_gpio(void)
+static void uninstall_irq_handler(struct gpio_chip * chip, int pin)
 {
-  gpio_free(gpio_a_pin);
-  gpio_free(gpio_b_pin);
+  int irq = chip->to_irq(chip, pin);
+  free_irq(irq, (void *) 0);
+  DKLOG("freed IRQ %d\n", irq);
 }
 
+static inline void set_irq_type(struct irq_data * data, int type)
+{
+  data->chip->irq_set_type(data, type);
+}
+
+static inline void unmask_irq(struct irq_data * data)
+{
+  data->chip->irq_unmask(data);
+}
+/*
 static int install_irq_handler(int pin, int irq_type, irq_handler_t handler, const char * name)
 {
   unsigned long flags;
@@ -132,3 +143,4 @@ static void uninstall_irq_handler(int pin)
   free_irq(irq, (void *) 0);
   DKLOG("freed IRQ %d\n", irq);
 }
+*/

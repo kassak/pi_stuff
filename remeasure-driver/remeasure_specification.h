@@ -23,3 +23,6 @@ MODULE_PARM_DESC(gpio_a_pin, "Minimal discharge time (ms)."
 
 module_param(debug, bool, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(debug, "Enable debugging messages");
+
+module_param_string(gpiochip_name, gpiochip_name, ARRAY_SIZE(gpiochip_name), S_IRUGO);
+MODULE_PARM_DESC(gpiochip_name, "Name of gpio chip. Default is `pinctrl-bcm2835`");

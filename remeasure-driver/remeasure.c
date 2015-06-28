@@ -40,6 +40,7 @@ static inline int init_gpio(void)
                                  , MY_MODULE_NAME " charge waiter", &irqdata)))
     goto error2;
   set_irq_type(irqdata, IRQ_TYPE_EDGE_RISING, &irqlock);
+  on_irq(irqdata, &irqlock);
   return 0;
 error2:
   free_pin(gpiochip, gpio_b_pin);
@@ -51,7 +52,7 @@ error0:
 
 static inline void deinit_gpio(void)
 {
-    // mask_irq(irqdata, &irqlock);
+  off_irq(irqdata, &irqlock);
   set_irq_type(irqdata, 0, &irqlock);
   uninstall_irq_handler(gpiochip, gpio_b_pin);
   free_pin(gpiochip, gpio_a_pin);

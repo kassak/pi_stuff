@@ -103,20 +103,24 @@ static inline void set_irq_type(struct irq_data * data, int type, spinlock_t * l
   spin_unlock_irqrestore(lock, flags);
 }
 
-static inline void unmask_irq(struct irq_data * data, spinlock_t * lock)
+static inline void on_irq(struct irq_data * data, spinlock_t * lock)
 {
   unsigned long flags;
-  DKLOG("unmask_irq %i\n", data->irq);
+  DKLOG("enable_irq %i\n", data->irq);
   spin_lock_irqsave(lock, flags);
-  data->chip->irq_unmask(data);
+  (data->chip->irq_enable
+    ? data->chip->irq_enable
+    : data->chip->irq_unmask)(data);
   spin_unlock_irqrestore(lock, flags);
 }
 
-static inline void mask_irq(struct irq_data * data, spinlock_t * lock)
+static inline void off_irq(struct irq_data * data, spinlock_t * lock)
 {
   unsigned long flags;
-  DKLOG("mask_irq %i\n", data->irq);
+  DKLOG("disable_irq %i\n", data->irq);
   spin_lock_irqsave(lock, flags);
-  data->chip->irq_mask(data);
+  (data->chip->irq_disable
+   ? data->chip->irq_disable
+   : data->chip->irq_mask)(data);
   spin_unlock_irqrestore(lock, flags);
 }

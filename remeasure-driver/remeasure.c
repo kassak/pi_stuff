@@ -11,10 +11,10 @@ struct gpio_chip *gpiochip;
 struct irq_data *irqdata;
 DEFINE_SPINLOCK(irqlock);
 
-#include "remeasure_specification.h"
+#include "remeasure-specification.h"
 #include "util.h"
-#include "gpio_stuff.h"
-#include "netlink_stuff.h"
+#include "gpio-stuff.h"
+#include "netlink-stuff.h"
 
 static irqreturn_t irq_handler(int i, void *blah, struct pt_regs *regs)
 {

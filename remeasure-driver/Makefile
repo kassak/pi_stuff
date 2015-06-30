@@ -7,5 +7,5 @@ else
 default:
 	$(MAKE) -C $(KDIR) M=$$PWD
 client-test:
-	gcc -Wall remeasure-client-test.c -lnl-genl-3 -I/usr/include/libnl3 -o remeasure-client-test
+	gcc -Wall -lnl-3 -lnl-genl-3 remeasure-client-test.c -I/usr/include/libnl3 -o remeasure-client-test
 endif

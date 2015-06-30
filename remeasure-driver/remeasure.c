@@ -11,6 +11,14 @@ struct gpio_chip *gpiochip;
 struct irq_data *irqdata;
 DEFINE_SPINLOCK(irqlock);
 
+uint32_t current_measure = 666;
+
+uint32_t get_current_measure(void)
+{
+    //TODO: lock
+    return current_measure;
+}
+
 #include "remeasure-specification.h"
 #include "util.h"
 #include "gpio-stuff.h"

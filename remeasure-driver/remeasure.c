@@ -3,7 +3,7 @@
 #include <linux/module.h>
 
 int gpio_a_pin = -1, gpio_b_pin = -1;
-int measure_timeout = -1, min_relaxation_ms = 0;
+int measure_timeout_usec = -1, min_relaxation_usec = 0;
 bool debug = 0;
 char gpiochip_name[30] = "pinctrl-bcm2835";
 

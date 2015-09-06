@@ -38,7 +38,7 @@ static void set_gpio_discharging(void)
 
 static int set_measure(uint32_t measure)
 {
-  DKLOG("set_measure, state = %s\n", state_str());
+  DKLOG("set_measure, state = %s, val = %iu\n", state_str(), measure);
   if (measure_state != Q_FREE)
   {
     off_irq(irqdata, &irqlock);
@@ -55,10 +55,6 @@ static int start_measure_impl(void)
   int res = 0;
   DKLOG("start_measure_impl\n");
   measure_state = Q_MEASURE;
-  last_measure_jif = jiffies;
-  do_gettimeofday(&measure_start_time);
-  set_gpio_charging();
-  on_irq(irqdata, &irqlock);
   if (measure_timeout_usec != -1)
   {
     timeout_jif = usecs_to_jiffies(measure_timeout_usec) + jiffies;
@@ -66,6 +62,10 @@ static int start_measure_impl(void)
     if ((res = mod_timer(&measure_timer, timeout_jif)))
       KLOG(KERN_ERR, "failed to set timeout guard with timeout %i\n", jiffies_to_usecs(timeout_jif));
   }
+  last_measure_jif = jiffies;
+  do_gettimeofday(&measure_start_time);
+  set_gpio_charging();
+  on_irq(irqdata, &irqlock);
   return res;
 }
 
@@ -132,7 +132,7 @@ static int enqueue_measure(void)
   }
   else
   {
-    DKLOG("skip request\n";
+    DKLOG("skip request\n");
   }
   spin_unlock_irqrestore(&measure_lock, flags);
   return res;

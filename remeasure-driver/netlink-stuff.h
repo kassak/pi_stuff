@@ -54,9 +54,7 @@ static int remeasure_get(struct sk_buff *skb, struct genl_info *info)
 static int remeasure_post(struct sk_buff *skb, struct genl_info *info)
 {
   DKLOG("remeasure_post");
-    /* message handling code goes here; return 0 on success, negative
-     * values on failure */
-  return 0;
+  return enqueue_measure();
 }
 
 int init_netlink(void)

@@ -24,11 +24,18 @@ int main(int argc, char *argv[])
   LOG("setting callback\n");
   if ((res = nl_socket_modify_cb(sock, NL_CB_VALID, NL_CB_CUSTOM, parse_cb, NULL))) goto error2;
 
-  LOG("sending\n");
-  res = genl_send_simple(sock, REMEASURE_FAMILY.o_id, REMEASURE_GET, REMEASURE_VERSION, 0);
-  if ((res = res > 0 ? 0 : res)) goto error2; //libnl bug
+  while (1)
+  {
+    LOG("sending post\n");
+    res = genl_send_simple(sock, REMEASURE_FAMILY.o_id, REMEASURE_POST, REMEASURE_VERSION, 0);
+    if ((res = res > 0 ? 0 : res)) goto error2; //libnl bug
+    sleep(1);
+    LOG("sending get\n");
+    res = genl_send_simple(sock, REMEASURE_FAMILY.o_id, REMEASURE_GET, REMEASURE_VERSION, 0);
+    if ((res = res > 0 ? 0 : res)) goto error2; //libnl bug
 
-  if ((res = nl_recvmsgs_default(sock))) goto error2;
+    if ((res = nl_recvmsgs_default(sock))) goto error2;
+  }
 error2:
   nl_close(sock);
 error1:

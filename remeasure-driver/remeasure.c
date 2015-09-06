@@ -22,21 +22,8 @@ uint32_t get_current_measure(void)
 #include "remeasure-specification.h"
 #include "util.h"
 #include "gpio-stuff.h"
+#include "measure.h"
 #include "netlink-stuff.h"
-
-static irqreturn_t irq_handler(int i, void *blah, struct pt_regs *regs)
-{
-
-    /* use the GPIO signal level */
-    /*int signal = */gpiochip->get(gpiochip, gpio_a_pin);
-
-    /* unmask the irq */
-    //irqchip->irq_unmask(irqdata);
-
-
-    return IRQ_HANDLED;
-}
-
 
 static inline int init_gpio(void)
 {
@@ -45,7 +32,7 @@ static inline int init_gpio(void)
   if (!gpiochip) return -ENODEV;
   if ((ret = claim_pin(gpiochip, gpio_a_pin))) goto error0;
   if ((ret = claim_pin(gpiochip, gpio_b_pin))) goto error1;
-  if ((ret = install_irq_handler(gpiochip, gpio_b_pin, (irq_handler_t)irq_handler
+  if ((ret = install_irq_handler(gpiochip, gpio_b_pin, (irq_handler_t)measure_irq_handler
                                  , MY_MODULE_NAME " charge waiter", &irqdata)))
     goto error2;
   set_irq_type(irqdata, IRQ_TYPE_EDGE_RISING, &irqlock);
@@ -73,10 +60,13 @@ static int remeasure_init(void)
   int res;
   KLOG(KERN_INFO, "inited\n");
   DKLOG("on A=%i, B=%i, timeout=%i, relaxation=%i\n",
-      gpio_a_pin, gpio_b_pin, measure_timeout, min_relaxation_ms);
+      gpio_a_pin, gpio_b_pin, measure_timeout_usec, min_relaxation_usec);
   if ((res = init_gpio())) goto error0;
   if ((res = init_netlink())) goto error1;
+  if ((res = init_measurements())) goto error2;
   return 0;
+error2:
+  deinit_measurements();
 error1:
   deinit_gpio();
 error0:
@@ -87,6 +77,7 @@ static void remeasure_deinit(void)
 {
   deinit_gpio();
   deinit_netlink();
+  deinit_measurements();
   KLOG(KERN_INFO, "deinited\n");
 }
 

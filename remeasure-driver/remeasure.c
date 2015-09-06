@@ -11,7 +11,7 @@ struct gpio_chip *gpiochip;
 struct irq_data *irqdata;
 DEFINE_SPINLOCK(irqlock);
 
-uint32_t current_measure = 666;
+uint32_t current_measure = -1;
 
 uint32_t get_current_measure(void)
 {
@@ -58,8 +58,7 @@ static inline void deinit_gpio(void)
 static int remeasure_init(void)
 {
   int res;
-  KLOG(KERN_INFO, "inited\n");
-  DKLOG("on A=%i, B=%i, timeout=%i, relaxation=%i\n",
+  KLOG(KERN_INFO, "inited on A=%i, B=%i, timeout=%i, relaxation=%i\n",
       gpio_a_pin, gpio_b_pin, measure_timeout_usec, min_relaxation_usec);
   if ((res = init_gpio())) goto error0;
   if ((res = init_netlink())) goto error1;

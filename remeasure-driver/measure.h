@@ -111,7 +111,7 @@ static int enqueue_measure(void)
   int timeout_jif;
   DKLOG("enqueue_measure, state = %s\n", state_str());
   spin_lock_irqsave(&measure_lock, flags);
-  if (measure_state == Q_FREE)
+  if (measure_state == Q_FREE && jiffies != -1)
   {
     measure_state = Q_WAIT;
     timeout_jif = usecs_to_jiffies(min_relaxation_usec) - (jiffies - last_measure_jif);

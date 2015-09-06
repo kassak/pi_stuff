@@ -1,0 +1,13 @@
+[Unit]
+Description = Starts an instance of remesure-switch-poller
+After = remote-fs.target
+
+[Service]
+User = root
+Group = root
+Type = simple
+ExecStart = /usr/bin/remeasure-switch-poller-runner /etc/remeasure/switch-poller.conf
+Restart = on-failure
+
+[Install]
+WantedBy = multi-user.target

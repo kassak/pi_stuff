@@ -1,0 +1,6 @@
+#!/bin/sh
+source $1
+if [[ "$SHELL_SCRIPT" != "yes" ]]; then
+  EXEC_PARAM = "-e"
+fi
+/usr/bin/remeasure-switch-poller -i "$POLL_INTERVAL" -l "$LOWER" -u "$UPPER" -h "$HANDLER_SCRIPT" -n "$NUMBER_OF_STATES" $EXEC_PARAM

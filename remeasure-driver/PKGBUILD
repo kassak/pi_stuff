@@ -1,0 +1,30 @@
+pkgname=remeasure
+pkgver=1
+pkgrel=0
+pkgdesc="remeasure driver and switch poller"
+arch=('armv7h')
+depends=(libnl)
+
+backup=(etc/remeasure/switch-poller.conf etc/remeasure/handler.sh)
+source=(
+  gpio-stuff.h measure.h netlink-stuff.h
+  remeasure-client.h remeasure-client.c remeasure-netlink.h
+  remeasure-specification.h remeasure-switch-poller.c remeasure.c
+  util.h Makefile remeasure-switch-poller-runner switch-poller.conf
+  remeasure-switch-poller.service handler.sh remeasure.conf
+)
+md5sums=(SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP)
+
+build() {
+  make
+  make switch-poller
+}
+
+package() {
+  mkdir -p $pkgdir/etc/{systemd/system,remeasure,modprobe.d}/ $pkgdir/usr/bin/ $pkgdir/usr/lib/modules/`uname -r`/kernel/drivers/gpio
+  install remeasure.conf $pkgdir/etc/modprobe.d/
+  install remeasure-switch-poller.service $pkgdir/etc/systemd/system/
+  install handler.sh switch-poller.conf $pkgdir/etc/remeasure/
+  install remeasure-switch-poller{,-runner} $pkgdir/usr/bin/
+  install remeasure.ko $pkgdir/usr/lib/modules/`uname -r`/kernel/drivers/gpio
+}

@@ -130,6 +130,10 @@ static int enqueue_measure(void)
         KLOG(KERN_ERR, "failed to start measure with timeout %i\n", jiffies_to_usecs(timeout_jif));
     }
   }
+  else
+  {
+    DKLOG("skip request\n";
+  }
   spin_unlock_irqrestore(&measure_lock, flags);
   return res;
 }

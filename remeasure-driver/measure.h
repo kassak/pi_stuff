@@ -140,6 +140,7 @@ static int enqueue_measure(void)
 
 static int init_measurements(void)
 {
+  last_measure_jif = jiffies;
   setup_timer(&measure_timer, kill_measure, 0);
   setup_timer(&dequeue_timer, start_measure, 0);
   return 0;

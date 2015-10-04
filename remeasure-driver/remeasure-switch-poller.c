@@ -49,9 +49,11 @@ void calibrate()
   {
     remeasure_do();
     uint32_t val = remeasure_ask();
-    if (val == -1) continue;
-    if (lower == -1 || lower > val) lower = val;
-    if (upper == -1 || upper < val) upper = val;
+    if (val != -1)
+    {
+      if (lower == -1 || lower > val) lower = val;
+      if (upper == -1 || upper < val) upper = val;
+    }
     printf("%u\n", val);
     usleep(interval * 1000);
   }
@@ -90,10 +92,16 @@ void watch()
   {
     remeasure_do();
     uint32_t val = remeasure_ask();
-    if (val == -1) continue;
-    int state = calc_state(val);
-    printf("state: %i, val: %u\n", state, val);
-    handle_state(state, 0);
+    if (val != -1)
+    {
+      int state = calc_state(val);
+      printf("state: %i, val: %u\n", state, val);
+      handle_state(state, 0);
+    }
+    else
+    {
+      printf("state: bad, val: %u\n", val);
+    }
     usleep(interval*1000);
   }
 }

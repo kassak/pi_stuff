@@ -1,9 +1,13 @@
 ifneq ($(KERNELRELEASE),)
 	obj-m := remeasure.o
 	ccflags-y := -Wall
-else
+endif
 # normal makefile
-	KDIR ?= /usr/lib/modules/`uname -r`/build
+        KERNELRELEASE ?= `uname -r`
+	KDIR ?= /usr/lib/modules/$(KERNELRELEASE)/build
 default:
 	$(MAKE) -C $(KDIR) M=$$PWD
-endif
+install:
+	install -D -t "$(PREFIX)/etc/modprobe.d/" remeasure.conf && \
+	install -D -t "$(PREFIX)/usr/lib/modules/$(KERNELRELEASE)/kernel/drivers/gpio" remeasure.ko
+

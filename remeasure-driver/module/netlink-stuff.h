@@ -4,7 +4,7 @@ static int remeasure_get(struct sk_buff *skb, struct genl_info *info);
 static int remeasure_post(struct sk_buff *skb, struct genl_info *info);
 static int remeasure_take(struct sk_buff *skb, struct genl_info *info);
 
-#include "remeasure-netlink.h"
+#include "../common/remeasure-netlink.h"
 
 static int send_measure(struct genl_info *info)
 {

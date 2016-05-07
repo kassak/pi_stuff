@@ -10,7 +10,7 @@ static int remeasure_take_parser(
   struct nl_cache_ops *unused, struct genl_cmd *cmd,
   struct genl_info *info, void *arg);
 
-#include "remeasure-netlink.h"
+#include "../common/remeasure-netlink.h"
 
 static int remeasure_take_parser(
   struct nl_cache_ops *unused, struct genl_cmd *cmd,
